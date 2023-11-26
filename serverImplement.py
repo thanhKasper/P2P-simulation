@@ -10,7 +10,6 @@ host = "192.168.1.76"
 port = 65432
 SIZE = 1024 * 4
 FORMAT = "utf-8"
-DISCONNECT_MSG = "!DISCONNECT"
 
 
 def handle_client(conn, addr):
@@ -20,10 +19,8 @@ def handle_client(conn, addr):
     while connected:
         message = serverLib.Message(conn,addr)
         message.read()
-        print("start writing")
-        message.write()
-        connected = False
-    conn.close()
+        #print("start writing")
+        connected = message.write()
 
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

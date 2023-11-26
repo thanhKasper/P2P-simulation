@@ -15,6 +15,10 @@ class Message:
         self.json_header_len = None
         self.json_header = None
         self.response = None
+    def __del__(self):
+        self.socket = None
+        #print("message Done")
+        return
     def _read(self):
         try:
             # Should be ready to read
@@ -85,6 +89,8 @@ class Message:
         if self.json_header:
             if self.response is None:
                 self.process_response()
+                
+
     def write(self):
         if not self._request_queued:
             self.queue_request()
@@ -140,7 +146,7 @@ class Message:
         if self.json_header["content-type"] == "text/json":
             encoding = self.json_header["content-encoding"]
             self.response = self._json_decode(data, encoding)
-            print(f"Received response {self.response!r} from {self.address}")
+            #print(f"Received response {self.response!r} from {self.address}")
             self._process_response_json_content()
         else:
             # Binary or unknown content-type
@@ -151,7 +157,8 @@ class Message:
             )
             self._process_response_binary_content()
         # Close when response has been processed
-        self.close()
+        #self.__del__()
+        #self.close()
         
     def _process_response_json_content(self):
         content = self.response
