@@ -4,7 +4,7 @@ import json
 import traceback
 import clientLib
 
-server_addr = "192.168.56.1"
+server_addr = "192.168.1.76"
 port = 65432
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -83,7 +83,13 @@ while flag:
     request = (formingRequest(username))
     message = clientLib.Message(sock, addr, request)
     message.write()
-    message.read()
-    if (request['content']['action'] == 'LEAVE'):
+    data = message.read()
+    if request['content']['action'] == 'GET_INFO':
+        if not (data is None):
+            print(f'UserInformation: {data}')
+    elif request['content']['action'] == 'FETCH':
+        if not (data is None):
+            print(f'Clients holding {request["content"]["file_name"]}: {data}')
+    elif (request['content']['action'] == 'LEAVE'):
         message.close()
         break

@@ -66,11 +66,12 @@ class Message:
         return json.dumps(obj, ensure_ascii=False).encode(encoding)
 
     def _json_decode(self, json_bytes, encoding):
-        tiow = io.TextIOWrapper(
-            io.BytesIO(json_bytes), encoding=encoding, newline=""
-        )
-        obj = json.load(tiow)
-        tiow.close()
+        #tiow = io.TextIOWrapper(
+        #    io.BytesIO(json_bytes), encoding=encoding, newline=""
+        #)
+        #obj = json.load(tiow)
+        #tiow.close()
+        obj = json.loads(json_bytes.decode(encoding))
         return obj
 
     # Retrieve the size in byte of the header (json_header)
@@ -111,7 +112,8 @@ class Message:
 
         if self.json_header:
             if self.response is None:
-                self.process_response()
+                return self.process_response()
+        return None
 
     def write(self):
         if not self._request_queued:
@@ -170,14 +172,14 @@ class Message:
     def process_response(self):
         content_len = self.json_header["content-length"]
         if not len(self._recv_buffer) >= content_len:
-            return
+            return None
         data = self._recv_buffer[:content_len]
         self._recv_buffer = self._recv_buffer[content_len:]
         if self.json_header["content-type"] == "text/json":
             encoding = self.json_header["content-encoding"]
             self.response = self._json_decode(data, encoding)
             # print(f"Received response {self.response!r} from {self.address}")
-            self._process_response_json_content()
+            return self._process_response_json_content()
         else:
             # Binary or unknown content-type
             self.response = data
@@ -186,6 +188,7 @@ class Message:
                 f"response from {self.addr}"
             )
             self._process_response_binary_content()
+            return None
         # Close when response has been processed
         # self.__del__()
         # self.close()
@@ -194,6 +197,9 @@ class Message:
         content = self.response
         result = content.get("result")
         print(f"Got result: {result}")
+        if 'client' in content:
+            return content.get("client")
+        return None
 
     def _process_response_binary_content(self):
         content = self.response

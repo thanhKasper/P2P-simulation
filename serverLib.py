@@ -106,7 +106,7 @@ def FETCH_request(filename):
     }) == 0:
         return {"result": f"{filename} doesn't exist in system."}
     else:
-        data = {"client_info": []}
+        data = {"client": []}
         count = 0
         file_list = records.find({"file_info.file_name": filename},
                                  {'_id': 0, "client_name": 1, "IP": 1, "port": 1, "path": "$file_info.path",
@@ -130,10 +130,10 @@ def GET_request_(client_name, address, port):
                 "port": port
             }
         })
-        data = {"result": []}
+        data = {"result": "Retrieve client information sucessfully","client" : []}
         file_list = records.find({"client_name": client_name}, {'_id': 0})
         for file in file_list:
-            data['result'].append(file)
+            data['client'].append(file)
         return data
 
 
@@ -191,11 +191,12 @@ class Message:
         return json.dumps(obj, ensure_ascii=False).encode(encoding)
 
     def _json_decode(self, json_bytes, encoding):
-        tiow = io.TextIOWrapper(
-            io.BytesIO(json_bytes), encoding=encoding, newline=""
-        )
-        obj = json.load(tiow)
-        tiow.close()
+        #tiow = io.TextIOWrapper(
+        #    io.BytesIO(json_bytes), encoding=encoding, newline=""
+        #)
+        #obj = json.load(tiow)
+        #tiow.close()
+        obj = json.loads(json_bytes.decode(encoding))
         return obj
 
     def process_fixedheader(self):
