@@ -5,8 +5,8 @@ import time
 
 
 class ClientController:
-    def __init__(self, hostname, server_ip, server_port):
-        self.username = hostname
+    def __init__(self, server_ip, server_port):
+        self.username = ""
         self.server_addr = "192.168.56.1"
         self.server_ip = server_ip
         self.server_port = server_port
