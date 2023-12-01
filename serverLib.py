@@ -106,7 +106,7 @@ def FETCH_request(filename):
     }) == 0:
         return {"result": f"{filename} doesn't exist in system."}
     else:
-        data = {"client_info": []}
+        data = {"client": []}
         count = 0
         file_list = records.find({"file_info.file_name": filename},
                                  {'_id': 0, "client_name": 1, "IP": 1, "port": 1, "path": "$file_info.path",
