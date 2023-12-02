@@ -130,7 +130,7 @@ def GET_request_(client_name, address, port):
                 "port": port
             }
         })
-        data = {"result": "Retrieve client information sucessfully","client" : []}
+        data = {"result": "Retrieve client information successfully", "client": []}
         file_list = records.find({"client_name": client_name}, {'_id': 0})
         for file in file_list:
             data['client'].append(file)
@@ -191,11 +191,11 @@ class Message:
         return json.dumps(obj, ensure_ascii=False).encode(encoding)
 
     def _json_decode(self, json_bytes, encoding):
-        #tiow = io.TextIOWrapper(
+        # tiow = io.TextIOWrapper(
         #    io.BytesIO(json_bytes), encoding=encoding, newline=""
-        #)
-        #obj = json.load(tiow)
-        #tiow.close()
+        # )
+        # obj = json.load(tiow)
+        # tiow.close()
         obj = json.loads(json_bytes.decode(encoding))
         return obj
 

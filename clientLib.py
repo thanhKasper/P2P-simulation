@@ -7,6 +7,7 @@ import struct
 The Structure of the Protocol
 
 ++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++++++++
 ++          header length (2 bytes)         ++
 ++++++++++++++++++++++++++++++++++++++++++++++
 ++  byte order: big endian / little endian  ++
