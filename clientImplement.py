@@ -4,7 +4,7 @@ import json
 import traceback
 import clientLib
 
-server_addr = "172.24.240.1"
+server_addr = "192.168.1.78"
 port = 65432
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 

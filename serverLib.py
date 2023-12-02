@@ -111,7 +111,7 @@ def FETCH_request(filename):
         data = {"client": []}
         count = 0
         file_list = records.find({"file_info.file_name": filename},
-                                 {'_id': 0, "client_name": 1, "IP": 1, "port": 1, "path": "$file_info.path"})
+                                 {'_id': 0, "client_name": 1, "IP": 1, "path": "$file_info.path"})
                                   #"file_name": "$file_info.file_name"})
         for file in file_list:
             if file['client_name'] in onlineList:
@@ -134,7 +134,7 @@ def GET_request_(client_name, address, port):
             }
         })
         data = {"result": "Retrieve client information sucessfully","client" : []}
-        file_list = records.find({"client_name": client_name}, {'_id': 0,"IP": 1, "port": 0})
+        file_list = records.find({"client_name": client_name}, {'_id': 0,"IP": 1,"client_name":1, "port": 1,"file_info": 1})
         for file in file_list:
             data['client'].append(file)
         return data

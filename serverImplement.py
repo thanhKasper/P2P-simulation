@@ -6,7 +6,7 @@ import selectors
 import os
 import serverLib
 
-host = socket.gethostbyname(socket.gethostname())
+host = '192.168.1.78' #socket.gethostbyname(socket.gethostname())
 port = 65432
 SIZE = 1024 * 4
 FORMAT = "utf-8"
