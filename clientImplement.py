@@ -72,14 +72,14 @@ requestConnect = dict(
     content=dict(client_name=username, action="CONNECT")
 )
 # create a socket to send and receive data from the server
-# client_socket, server_addr = start_connection(server_ip, server_port, requestConnect)
+client_socket, server_addr = start_connection(server_ip, server_port, requestConnect)
 
 file_list = [
     {
         "client_name": "Thanh",
         "IP": "192.168.56.1",
         "port": 12345,
-        "path": ['D:\\School Reference\\HK231\\Database'],
+        "path": ['D:/School Reference/HK231/Database'],
         "file_name": ["Assignment 1 task.pdf"]
     },
     {
@@ -103,12 +103,12 @@ def send_file_to_client(client_socket, file_path):
 
 def download_file(server_socket, file_path, file_name):
     full_path = file_path + '/' + file_name
-    get_file_socket.send(full_path.encode(FORMAT))
-    file_size = get_file_socket.recv(1024).decode(FORMAT)
+    server_socket.send(full_path.encode(FORMAT))
+    file_size = server_socket.recv(1024).decode(FORMAT)
     print(f"Size of a file: {file_size}")
     received_file_size = int(file_size)
     file = open(server_filename, "wb")
-    data_received = get_file_socket.recv(received_file_size)
+    data_received = server_socket.recv(received_file_size)
     file.write(data_received)
     file.close()
     print("File downloaded")
@@ -144,10 +144,10 @@ flag = True
 while flag:
     print(socket.gethostbyname(socket.gethostname()))
     request = forming_request(username)
-    # formatted_request = clientLib.Message(client_socket, server_addr, request)  # adjusted request for sending
-    # formatted_request.write()
-    # data = formatted_request.read()
-    data = file_list
+    formatted_request = clientLib.Message(client_socket, server_addr, request)  # adjusted request for sending
+    formatted_request.write()
+    data = formatted_request.read()
+    # data = file_list
     if request['content']['action'] == 'GET_INFO':
         if not (data is None):
             print(f'UserInformation: {data}')
