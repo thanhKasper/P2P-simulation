@@ -1,9 +1,9 @@
+import os.path
 import threading
 import socket
-import json
-import traceback
 import clientLib
 
+FORMAT = "utf-8"
 server_ip = "192.168.56.1"
 server_port = 65432
 
@@ -72,37 +72,101 @@ requestConnect = dict(
     content=dict(client_name=username, action="CONNECT")
 )
 # create a socket to send and receive data from the server
-client_socket, server_addr = start_connection(server_ip, server_port, requestConnect)
+# client_socket, server_addr = start_connection(server_ip, server_port, requestConnect)
 
-# file_list = [
-#     {
-#         "client_name": "Thanh",
-#         "IP": "192.168.1.76",
-#         "port": 12345,
-#         "path": ['D:/dir1/dir2'],
-#         "file_name": ["file1.txt"]
-#     },
-#     {
-#         "client_name": "Thanh2",
-#         "IP": "10.0.1.23",
-#         "port": 37581,
-#         "path": ["D:/a/b/e"],
-#         "file_name": ["file1.txt"]
-#     }
-# ]
+file_list = [
+    {
+        "client_name": "Thanh",
+        "IP": "192.168.56.1",
+        "port": 12345,
+        "path": ['D:\\School Reference\\HK231\\Database'],
+        "file_name": ["Assignment 1 task.pdf"]
+    },
+    {
+        "client_name": "Thanh2",
+        "IP": "192.168.56.1",
+        "port": 37581,
+        "path": ["D:/folder1"],
+        "file_name": ["ocean.png"]
+    }
+]
+
+
+def send_file_to_client(client_socket, file_path):
+    # Prepare and send file
+    file = open(file_path, "rb")
+    file_data_binary = file.read()
+    client_socket.sendall(file_data_binary)
+    print("File sent to client")
+    file.close()
+
+
+def download_file(server_socket, file_path, file_name):
+    full_path = file_path + '/' + file_name
+    get_file_socket.send(full_path.encode(FORMAT))
+    file_size = get_file_socket.recv(1024).decode(FORMAT)
+    print(f"Size of a file: {file_size}")
+    received_file_size = int(file_size)
+    file = open(server_filename, "wb")
+    data_received = get_file_socket.recv(received_file_size)
+    file.write(data_received)
+    file.close()
+    print("File downloaded")
+
+
+# Accept one client socket that want to communicate with server
+def socket_accept(server_socket):
+    while True:
+        conn, addr = server_socket.accept()
+        conn.send("Connected to server".encode(FORMAT))
+        file_path = conn.recv(1024).decode(FORMAT)
+        file_len = os.path.getsize(file_path)
+        conn.send(str(file_len).encode(FORMAT))
+        handle_client_thread = threading.Thread(target=send_file_to_client, args=(conn, file_path))
+        handle_client_thread.start()
+
+
+# Create a new port for sending downloaded file to other client
+def create_downloading_process():
+    print("Create a thread for downloading file")
+    my_ip = socket.gethostbyname(socket.gethostname())
+    downloading_port = 50000
+    handle_downloading_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    handle_downloading_socket.bind((my_ip, downloading_port))
+    handle_downloading_socket.listen()
+    socket_accept(handle_downloading_socket)
+
+
+handle_downloading_thread = threading.Thread(target=create_downloading_process, daemon=True)
+handle_downloading_thread.start()
 
 flag = True
 while flag:
+    print(socket.gethostbyname(socket.gethostname()))
     request = forming_request(username)
-    formatted_request = clientLib.Message(client_socket, server_addr, request)
-    formatted_request.write()
-    data = formatted_request.read()
+    # formatted_request = clientLib.Message(client_socket, server_addr, request)  # adjusted request for sending
+    # formatted_request.write()
+    # data = formatted_request.read()
+    data = file_list
     if request['content']['action'] == 'GET_INFO':
         if not (data is None):
             print(f'UserInformation: {data}')
     elif request['content']['action'] == 'FETCH':
         if not (data is None):
             print(f'Clients holding {request["content"]["file_name"]}: {data}')
+            server_name = data[0]["client_name"]
+            server_ip = data[0]["IP"]
+            server_port = data[0]["port"]
+            server_path = data[0]["path"][0]
+            server_filename = data[0]["file_name"][0]
+            print(server_name, server_ip, server_port, server_path, server_filename)
+            get_file_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            get_file_socket.connect((server_ip, 50000))
+            # Receive info whether connect to server or not
+            print(get_file_socket.recv(1024).decode(FORMAT))
+            # request downloading file
+            download_file(get_file_socket, server_path, server_filename)
+            get_file_socket.close()
     elif request['content']['action'] == 'LEAVE':
-        request_message.close()
+        formatted_request.close()
         break
