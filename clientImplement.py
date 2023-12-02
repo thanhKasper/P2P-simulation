@@ -4,7 +4,7 @@ import json
 import traceback
 import clientLib
 
-server_addr = "192.168.1.76"
+server_addr = "172.24.240.1"
 port = 65432
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -38,7 +38,7 @@ def formingRequest(clientName):
     act = validateRequest(userInput)
     if act == -1:
         print("Invalid syntax")
-        return
+        return None
     request = dict(
         type="text/json",
         encoding="utf-8",
@@ -81,6 +81,8 @@ sock, addr = start_connection(server_addr, port, requestConnect)
 flag = True
 while flag:
     request = (formingRequest(username))
+    if(request is None):
+        break
     message = clientLib.Message(sock, addr, request)
     message.write()
     data = message.read()

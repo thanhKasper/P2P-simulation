@@ -8,12 +8,13 @@ from pymongo import MongoClient
 client = MongoClient("mongodb+srv://minhdangquocminh03:30S9qi0aPQZ5wSfO@clusterserver.xbnnkjh.mongodb.net/")
 db = client.get_database('CN')
 records = db.Client_Info
-
+onlineList = []
 
 def CONNECT_request_(address, port, client_name):
     if records.count_documents({
         "client_name": client_name
     }) > 0:
+        onlineList.append(client_name)
         return {"result": f"Connected successfully."}
     else:
         records.insert_one({
@@ -22,6 +23,7 @@ def CONNECT_request_(address, port, client_name):
             "port": port,
             "file_info": []
         })
+        onlineList.append(client_name)
         return {"result": f"Welcome, {client_name}."}
 
 
@@ -109,11 +111,12 @@ def FETCH_request(filename):
         data = {"client": []}
         count = 0
         file_list = records.find({"file_info.file_name": filename},
-                                 {'_id': 0, "client_name": 1, "IP": 1, "port": 1, "path": "$file_info.path",
-                                  "file_name": "$file_info.file_name"})
+                                 {'_id': 0, "client_name": 1, "IP": 1, "port": 1, "path": "$file_info.path"})
+                                  #"file_name": "$file_info.file_name"})
         for file in file_list:
-            data['client'].append(file)
-            count = count + 1
+            if file['client_name'] in onlineList:
+                data['client'].append(file)
+                count = count + 1
         data["result"] = f"There are {count} clients online having {filename}."
         return data
 
@@ -131,7 +134,7 @@ def GET_request_(client_name, address, port):
             }
         })
         data = {"result": "Retrieve client information sucessfully","client" : []}
-        file_list = records.find({"client_name": client_name}, {'_id': 0})
+        file_list = records.find({"client_name": client_name}, {'_id': 0,"IP": 1, "port": 0})
         for file in file_list:
             data['client'].append(file)
         return data
@@ -147,6 +150,7 @@ class Message:
         self.json_header_len = None
         self.request = None
         self.response_created = False
+        #self.lock = lock
 
     def __del__(self):
         self.socket = None
@@ -282,6 +286,7 @@ class Message:
             content = ADD_request_(self.address[0], self.address[1], self.request['client_name'],
                                    self.request['file_name'], self.request['path'])
         elif self.request['action'] == 'LEAVE':
+            onlineList.remove(self.request['client_name'])
             content = {"result": "CLOSING"}
         elif self.request['action'] == 'CONNECT':
             content = CONNECT_request_(self.address[0], self.address[1], self.request['client_name'])
