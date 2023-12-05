@@ -195,11 +195,11 @@ class Message:
         return json.dumps(obj, ensure_ascii=False).encode(encoding)
 
     def _json_decode(self, json_bytes, encoding):
-        #tiow = io.TextIOWrapper(
+        # tiow = io.TextIOWrapper(
         #    io.BytesIO(json_bytes), encoding=encoding, newline=""
-        #)
-        #obj = json.load(tiow)
-        #tiow.close()
+        # )
+        # obj = json.load(tiow)
+        # tiow.close()
         obj = json.loads(json_bytes.decode(encoding))
         return obj
 
