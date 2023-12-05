@@ -60,6 +60,9 @@ class ClientController:
             client_info = json.loads(client_info)
             return client_info['client_info']
 
+
 # print(fetch_file("image.png")[0])
 # add_file_info('D:/NGUYEN/DAI HOC/Book/Semester 5/COMPUTER NETWORKS/Assignment1' , "image.png")
 # update_path_name('D:/', "image1.png")
+
+print(socket.gethostbyname(socket.gethostname()))
