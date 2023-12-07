@@ -4,7 +4,7 @@ from tkinter import ttk
 from tkinter import filedialog
 
 
-client = ClientController("anon", "192.168.56.1", 23578)
+client = ClientController("192.168.56.1", 23578)
 
 window = Tk()
 window.title("P2P Simulation")
