@@ -20,22 +20,25 @@ file_list = [
     }
 ]
 
-import sys
 server_addr = "192.168.1.78"
 port = 65432
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+
 class Client:
-    def __init__(self,serverAddress, serverPort,userName):
-        self.sAddr = serverAddress
-        self.sPort = serverPort
-        self.socket = None
-        self.username = userName
-        self.handle_downloading_thread = threading.Thread(target=create_downloading_process, daemon=True)
+    def __init__(self, server_address, server_port, username):
+        self.sAddr = server_address  # Server IP address
+        self.sPort = server_port     # Server port
+        self.socket = None           # the socket to connect to server
+        self.username = username     # username to distinguish between clients
+        self.handle_downloading_thread = threading.Thread(target=self.create_downloading_process, daemon=True)
         self.handle_downloading_thread.start()
+        self.FORMAT = 'utf-8'
+
     def __del__(self):
         self.socket = None
-    def validateRequest(self,input):
+
+    def validate_request(self, input):
         if len(input) == 0 or len(input) > 3:
             return -1
         elif len(input) == 1:
@@ -56,10 +59,11 @@ class Client:
             elif input[0] == "UPDATE":
                 return 3
         return -1
-    def formingRequest(self,input):
+
+    def forming_request(self, input):
         userInput = input
         userInput = userInput.split()
-        act = self.validateRequest(userInput)
+        act = self.validate_request(userInput)
         if act == -1:
             print("Invalid syntax")
             return None
@@ -76,9 +80,10 @@ class Client:
             return request
         request["content"]["file_name"] = userInput[1]
         return request
+
     def start_connection(self):
         if not (self.socket is None):
-            raise ValueError(("Thread trying to start another socket to server."))
+            raise ValueError("Thread trying to start another socket to server.")
         addr = (self.sAddr, self.sPort)
         print(f"Starting connection to {addr}")
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -104,8 +109,8 @@ class Client:
 
     def download_file(self, server_socket, file_path, file_name):
         full_path = file_path + '/' + file_name
-        server_socket.send(full_path.encode(FORMAT))
-        file_size = server_socket.recv(1024).decode(FORMAT)
+        server_socket.send(full_path.encode(self.FORMAT))
+        file_size = server_socket.recv(1024).decode(self.FORMAT)
         print(f"Size of a file: {file_size}")
         received_file_size = int(file_size)
         file = open(server_filename, "wb")
@@ -135,13 +140,30 @@ class Client:
         handle_downloading_socket.listen()
         socket_accept(handle_downloading_socket)
 
-    def handleRequest(self,input):
+    # raw_request: Request of type string like 'FETCH path file'
+    def handle_request(self, raw_request):
         if self.socket is None:
             raise ValueError("Socket does not exist")
-        request = self.formingRequest(input)
+        request = self.forming_request(raw_request)
         message = clientLib.Message(self.socket, (self.sAddr, self.sPort), request)
         message.write()
         data = message.read()
+        data = [
+            {
+                "client_name": "Thanh",
+                "IP": "192.168.56.1",
+                "port": 12345,
+                "path": ['D:/School Reference/HK231/Database'],
+                "file_name": ["Assignment 1 task.pdf"]
+            },
+            {
+                "client_name": "Thanh2",
+                "IP": "192.168.56.1",
+                "port": 37581,
+                "path": ["D:/folder1"],
+                "file_name": ["ocean.png"]
+            }
+        ]
         if request['content']['action'] == 'GET_INFO':
             if not (data is None):
                 return data
@@ -159,22 +181,17 @@ class Client:
                 get_file_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 get_file_socket.connect((server_ip, 50000))
                 # Receive info whether connect to server or not
-                print(get_file_socket.recv(1024).decode(FORMAT))
+                print(get_file_socket.recv(1024).decode(self.FORMAT))
                 # request downloading file
-                download_file(get_file_socket, server_path, server_filename)
+                self.download_file(get_file_socket, server_path, server_filename)
                 get_file_socket.close()
-            else: 
+            else:
                 raise ValueError(f"Fetch data for client {self.username} does not exist")
-        elif (request['content']['action'] == 'LEAVE'):
+        elif request['content']['action'] == 'LEAVE':
             message.close()
-        
-
-def Welcome():
-    username = input("Please enter your username: ")
-    return username
 
 
-username = Welcome()
-client = Client(server_addr,port,username)
+hostname = input("Please enter your username: ")
+client = Client(server_addr, port, hostname)
 client.start_connection()
-client.handleRequest("LEAVE")
+client.handle_request("LEAVE")
