@@ -111,11 +111,12 @@ def FETCH_request(filename):
         data = {"client": []}
         count = 0
         file_list = records.find({"file_info.file_name": filename},
-                                 {'_id': 0, "client_name": 1, "IP": 1, "path": "$file_info.path"})
+                                 {'_id': 0, "client_name": 1, "IP": 1, "file_info": {"$elemMatch":{"file_name":"create_tables.sql"}}})
                                   #"file_name": "$file_info.file_name"})
         for file in file_list:
             if file['client_name'] in onlineList:
-                data['client'].append(file)
+                result = dict(client_name=file['client_name'],IP=file['IP'],path=file["file_info"][0]['path'])
+                data['client'].append(result)
                 count = count + 1
         data["result"] = f"There are {count} clients online having {filename}."
         return data

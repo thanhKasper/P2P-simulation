@@ -4,7 +4,7 @@ import socket
 import clientLib
 
 
-server_addr = "192.168.1.78"
+server_addr = "172.31.0.1"
 port = 65432
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -140,6 +140,7 @@ class Client:
         message = clientLib.Message(self.socket, (self.sAddr, self.sPort), request)
         message.write()
         data = message.read()
+        '''
         data = [
             {
                 "client_name": "Thanh",
@@ -156,6 +157,7 @@ class Client:
                 "file_name": ["CN_assignment.txt"]
             }
         ]
+        '''
         if request['content']['action'] == 'GET_INFO':
             if not (data is None):
                 return data
@@ -195,6 +197,7 @@ hostname = input("Please enter your username: ")
 client = Client(server_addr, port, hostname)
 client.start_connection()
 while True:
-    client.handle_request("FETCH CN_assignment.txt")
-    # client.handle_request("LEAVE")
+    client.handle_request("FETCH testFile")
+    #client.handle_request("LEAVE")
+    
 
