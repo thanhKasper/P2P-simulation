@@ -4,9 +4,8 @@ import socket
 import clientLib
 
 
-server_addr = "192.168.1.78"
+server_addr = "172.31.0.1"
 port = 65432
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
 class Client:
@@ -86,6 +85,16 @@ class Client:
         self.socket = sock
         self.is_connected = True
 
+    # Create a connection to the client that has file to download from
+    def create_connection_and_download(self, client_ip, file_path):
+        get_file_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        get_file_socket.connect((client_ip, 50000))
+        # Receive info whether connect to server or not
+        print(get_file_socket.recv(1024).decode(self.FORMAT))
+        # request downloading file
+        self.download_file(get_file_socket, file_path)
+        get_file_socket.close()
+
     # Client download file from another client
     def download_file(self, server_socket, file_path):
         server_socket.send(file_path.encode(self.FORMAT))
@@ -140,22 +149,6 @@ class Client:
         message = clientLib.Message(self.socket, (self.sAddr, self.sPort), request)
         message.write()
         data = message.read()
-        # data = [
-        #     {
-        #         "client_name": "Thanh",
-        #         "IP": "192.168.56.1",
-        #         "port": 12345,
-        #         "path": ['D:/myFolder/anotherFolder'],
-        #         "file_name": ["CN_assignment.txt"]
-        #     },
-        #     {
-        #         "client_name": "Thanh2",
-        #         "IP": "192.168.56.1",
-        #         "port": 37581,
-        #         "path": ["D:/diffFolder"],
-        #         "file_name": ["CN_assignment.txt"]
-        #     }
-        # ]
         if request['content']['action'] == 'GET_INFO':
             if not (data is None):
                 return data
@@ -163,24 +156,6 @@ class Client:
                 raise ValueError(f"Data for client {self.username} does not exist")
         elif request['content']['action'] == 'FETCH':
             if not (data is None):
-                # print(f'Clients holding {request["content"]["file_name"]}: {data}')
-                # print("Currently there are ", len(data), " having the file you want to download")
-                # choice = int(input("Which one you want to choose: "))
-                #
-                # info = data[choice]
-                # server_ip = info["IP"]
-                # path = info["path"][0]
-                # filename = info["file_name"][0]
-                #
-                # full_path = path + "/" + filename
-                # print(full_path)
-                # get_file_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                # get_file_socket.connect((server_ip, 50000))
-                # # Receive info whether connect to server or not
-                # print(get_file_socket.recv(1024).decode(self.FORMAT))
-                # # request downloading file
-                # self.download_file(get_file_socket, full_path)
-                # get_file_socket.close()
                 return data
             else:
                 raise ValueError(f"Fetch data for client {self.username} does not exist")
@@ -192,5 +167,4 @@ class Client:
             print("[SEND] sending file to server")
             if data is not None:
                 print(data)
-
 

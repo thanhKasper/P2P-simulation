@@ -10,6 +10,7 @@ db = client.get_database('CN')
 records = db.Client_Info
 onlineList = []
 
+
 def CONNECT_request_(address, port, client_name):
     if records.count_documents({
         "client_name": client_name
@@ -111,11 +112,13 @@ def FETCH_request(filename):
         data = {"client": []}
         count = 0
         file_list = records.find({"file_info.file_name": filename},
-                                 {'_id': 0, "client_name": 1, "IP": 1, "path": "$file_info.path"})
-                                  #"file_name": "$file_info.file_name"})
+                                 {'_id': 0, "client_name": 1, "IP": 1,
+                                  "file_info": {"$elemMatch": {"file_name": filename}}})
+        # "file_name": "$file_info.file_name"})
         for file in file_list:
             if file['client_name'] in onlineList:
-                data['client'].append(file)
+                result = dict(client_name=file['client_name'], IP=file['IP'], path=file["file_info"][0]['path'])
+                data['client'].append(result)
                 count = count + 1
         data["result"] = f"There are {count} clients online having {filename}."
         return data
@@ -133,8 +136,9 @@ def GET_request_(client_name, address, port):
                 "port": port
             }
         })
-        data = {"result": "Retrieve client information sucessfully","client" : []}
-        file_list = records.find({"client_name": client_name}, {'_id': 0,"IP": 1,"client_name":1, "port": 1,"file_info": 1})
+        data = {"result": "Retrieve client information sucessfully", "client": []}
+        file_list = records.find({"client_name": client_name},
+                                 {'_id': 0, "IP": 1, "client_name": 1, "port": 1, "file_info": 1})
         for file in file_list:
             data['client'].append(file)
         return data
@@ -150,7 +154,7 @@ class Message:
         self.json_header_len = None
         self.request = None
         self.response_created = False
-        #self.lock = lock
+        # self.lock = lock
 
     def __del__(self):
         self.socket = None

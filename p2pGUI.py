@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import filedialog
 from clientImplement import Client
 
-
 client = Client("192.168.56.1", 65432)
 
 window = Tk()
@@ -51,8 +50,8 @@ notebook.add(downloadFile, text="Download")
 
 
 def handle_tab_change(event):
-    user_data = client.handle_request("GET_INFO")
-    user_data = user_data[0]['file_info']
+    # user_data = client.handle_request("GET_INFO")
+    # user_data = user_data[0]['file_info']
 
     if notebook.select() == ".!notebook.!frame":
         print("Add Tab")
@@ -66,12 +65,16 @@ def handle_tab_change(event):
         #     'file_info': [{'file_name': 'DBSchool1.sql', 'path': 'D:'}, {'file_name': 'ocean.png', 'path': 'D:'}]
         #   }
         # ]
+        user_data = client.handle_request("GET_INFO")
+        user_data = user_data[0]['file_info']
         children_list = remove_tree.get_children()
         for child in children_list:
             remove_tree.delete(child)
         for info in user_data:
             remove_tree.insert("", "end", values=(info["path"], info["file_name"]))
     elif notebook.select() == ".!notebook.!frame3":
+        user_data = client.handle_request("GET_INFO")
+        user_data = user_data[0]['file_info']
         children_list = update_tree.get_children()
         for child in children_list:
             update_tree.delete(child)
@@ -89,7 +92,7 @@ def get_file():
     dialog = filedialog.askopenfile()
     split_idx = dialog.name.rfind('/')
     path_name = dialog.name[:split_idx]
-    file_name = dialog.name[split_idx+1:]
+    file_name = dialog.name[split_idx + 1:]
     command = "SEND " + path_name + " " + file_name
     client.handle_request(command)
 
@@ -127,7 +130,6 @@ def handle_remove_file():
         remove_tree.insert("", "end", values=(info["path"], info["file_name"]))
 
 
-
 removeBtn = ttk.Button(removeFile, text="Remove file", command=handle_remove_file)
 removeBtn.place(x=300, y=300)
 
@@ -137,7 +139,6 @@ remove_tree.heading("File name", text="File name")
 remove_tree.column("File path", width=350)
 remove_tree.column("File name", width=100)
 remove_tree.place(x=20, y=40)
-
 
 ###########################################
 # Create a GUI for update path to server  #
@@ -187,7 +188,6 @@ update_tree.column("File path", width=350)
 update_tree.column("File name", width=100)
 update_tree.place(x=20, y=40)
 
-
 ###################################
 # Create a GUI for download file  #
 ###################################
@@ -202,38 +202,50 @@ def handle_fetch_file():
     downloading_file = fetch_entry.get()
     response = client.handle_request(f"FETCH {downloading_file}")
     print(response)
-
+    children_list = my_tree.get_children()
+    for child in children_list:
+        my_tree.delete(child)
+    for choice in response:
+        my_tree.insert("",
+                       "end",
+                       iid=str((choice['client_name'], choice['IP'], choice['path'] + '/' + downloading_file)),
+                       values=[choice['client_name'], choice['IP'], choice['path'] + '/' + downloading_file])
 
 
 fetchBtn = ttk.Button(downloadFile, text="Fetch file", command=handle_fetch_file)
 fetchBtn.place(x=350, y=10)
 
-my_tree = ttk.Treeview(downloadFile, columns=("Name", "IP", "Port", "File path"), show="headings")
+my_tree = ttk.Treeview(downloadFile, columns=("Name", "IP", "File path"), show="headings")
 my_tree.heading("Name", text="Name")
 my_tree.heading("IP", text="IP")
-my_tree.heading("Port", text="Port")
 my_tree.heading("File path", text="File path")
 my_tree.column("Name", width=150)
 my_tree.column("IP", width=100)
-my_tree.column("Port", width=50)
 my_tree.column("File path", width=250)
 my_tree.place(x=20, y=40)
 
-data = [("Nguyen", '192.158.1.1', 53, 'D:/movie.mp4'),
-        ("Minh", '192.158.1.2', 54, 'D:/movie.mp4'),
-        ("Thanh", '192.158.1.3', 55, 'D:/movie.mp4')]
-for item in data:
-    my_tree.insert("", "end", iid=str(item), values=item)
+user_choice = ()
 
 
 def on_select(event):
+    global user_choice
     selected_item = my_tree.focus()
-    print("Selected item:", selected_item)
+    user_choice = eval(selected_item)
 
+
+print("User choose this: ", user_choice)
 
 my_tree.bind("<ButtonRelease-1>", on_select)
 
-downloadBtn = ttk.Button(downloadFile, text="Send request", width=20)
+
+def download_file_from_client():
+    print("User choose this client to download from", user_choice)
+    ip_addr = user_choice[1]
+    file_path = user_choice[2]
+    client.create_connection_and_download(ip_addr, file_path)
+
+
+downloadBtn = ttk.Button(downloadFile, text="Send request", width=20, command=download_file_from_client)
 downloadBtn.place(x=450, y=280)
 
 window.mainloop()
