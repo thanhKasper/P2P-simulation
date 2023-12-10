@@ -8,6 +8,7 @@ print(socket.gethostbyname(socket.gethostname()))
 
 client = Client("192.168.56.1", 65432)
 
+
 window = Tk()
 window.title("P2P Simulation")
 window.minsize(width=600, height=500)

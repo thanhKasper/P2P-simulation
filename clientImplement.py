@@ -4,7 +4,7 @@ import socket
 import clientLib
 
 
-server_addr = "172.31.0.1"
+server_addr = "172.31.64.1"
 port = 65432
 
 
