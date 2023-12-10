@@ -2,8 +2,9 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from clientImplement import Client
+import socket
 
-client = Client("192.168.56.1", 65432)
+client = Client('192.168.1.5', 65432)
 
 window = Tk()
 window.title("P2P Simulation")
