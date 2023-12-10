@@ -72,7 +72,7 @@ def handle_tab_change(event):
         for child in children_list:
             remove_tree.delete(child)
         for info in user_data:
-            remove_tree.insert("", "end", values=(info["path"], info["file_name"]))
+            remove_tree.insert("", "end", values=(info["file_name"], info["path"]))
     elif notebook.select() == ".!notebook.!frame3":
         user_data = client.handle_request("GET_INFO")
         user_data = user_data[0]['file_info']
@@ -80,7 +80,7 @@ def handle_tab_change(event):
         for child in children_list:
             update_tree.delete(child)
         for info in user_data:
-            update_tree.insert("", "end", values=(info["path"], info["file_name"]))
+            update_tree.insert("", "end", values=(info["file_name"], info["path"]))
 
 
 notebook.bind("<<NotebookTabChanged>>", handle_tab_change)
@@ -128,17 +128,17 @@ def handle_remove_file():
     for child in children_list:
         remove_tree.delete(child)
     for info in user_data:
-        remove_tree.insert("", "end", values=(info["path"], info["file_name"]))
+        remove_tree.insert("", "end", values=(info["file_name"], info["path"]))
 
 
 removeBtn = ttk.Button(removeFile, text="Remove file", command=handle_remove_file)
 removeBtn.place(x=300, y=300)
 
-remove_tree = ttk.Treeview(removeFile, columns=("File path", "File name"), show="headings")
+remove_tree = ttk.Treeview(removeFile, columns=("File name", "File path"), show="headings")
 remove_tree.heading("File path", text="File path")
 remove_tree.heading("File name", text="File name")
-remove_tree.column("File path", width=350)
-remove_tree.column("File name", width=100)
+remove_tree.column("File path", width=250)
+remove_tree.column("File name", width=200)
 remove_tree.place(x=20, y=40)
 
 ###########################################
@@ -176,17 +176,17 @@ def handle_update_file():
     for child in children_list:
         update_tree.delete(child)
     for info in user_data:
-        update_tree.insert("", "end", values=(info["path"], info["file_name"]))
+        update_tree.insert("", "end", values=(info["file_name"], info["path"]))
 
 
 pathBtn = ttk.Button(updatePath, text="Update path", command=handle_update_file)
 pathBtn.place(x=300, y=330)
 
-update_tree = ttk.Treeview(updatePath, columns=("File path", "File name"), show="headings")
+update_tree = ttk.Treeview(updatePath, columns=("File name", "File path"), show="headings")
 update_tree.heading("File path", text="File path")
 update_tree.heading("File name", text="File name")
-update_tree.column("File path", width=350)
-update_tree.column("File name", width=100)
+update_tree.column("File path", width=250)
+update_tree.column("File name", width=200)
 update_tree.place(x=20, y=40)
 
 ###################################
