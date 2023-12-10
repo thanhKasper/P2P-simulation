@@ -1,7 +1,10 @@
+import socket
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from clientImplement import Client
+
+print(socket.gethostbyname(socket.gethostname()))
 
 client = Client("192.168.56.1", 65432)
 
