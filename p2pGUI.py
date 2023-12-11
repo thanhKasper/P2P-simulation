@@ -4,9 +4,9 @@ from tkinter import ttk
 from tkinter import filedialog
 from clientImplement import Client
 
-print(socket.gethostbyname(socket.gethostname()))
+# print(socket.gethostbyname(socket.gethostname()))
 
-client = Client("192.168.56.1", 65432)
+client = Client("115.73.173.12", 65432)
 
 
 window = Tk()

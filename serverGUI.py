@@ -3,12 +3,12 @@ from serverImplement import Server
 import socket
 import threading
 import sys
-host = socket.gethostbyname(socket.gethostname())
+# host = socket.gethostbyname(socket.gethostname())
+host = '115.73.173.12'
 
 
 port = 65432
 stop = False
-
 
 
 class ServerInstance:
