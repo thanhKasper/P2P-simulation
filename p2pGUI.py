@@ -6,7 +6,7 @@ from clientImplement import Client
 
 # print(socket.gethostbyname(socket.gethostname()))
 
-client = Client("115.73.173.12", 65432)
+client = Client("10.128.108.221", 65432)
 
 
 window = Tk()
@@ -252,3 +252,6 @@ downloadBtn = ttk.Button(downloadFile, text="Send request", width=20, command=do
 downloadBtn.place(x=450, y=280)
 
 window.mainloop()
+
+
+client.handle_request("LEAVE")
