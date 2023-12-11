@@ -52,7 +52,6 @@ notebook.add(removeFile, text="Remove")
 notebook.add(updatePath, text="Update")
 notebook.add(downloadFile, text="Download")
 
-
 def handle_tab_change(event):
     # user_data = client.handle_request("GET_INFO")
     # user_data = user_data[0]['file_info']

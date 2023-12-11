@@ -24,30 +24,25 @@ class Client:
         self.socket = None
 
     def validate_request(self, input):
-        if len(input) == 0 or len(input) > 3:
-            return -1
-        elif len(input) == 1:
+        if len(input) == 1:
             if input[0] == "GET_INFO":
                 return 5
             elif input[0] == "LEAVE":
                 return 6
-            return -1
-        elif len(input) == 2:
-            if input[0] == "REMOVE":
-                return 2
-            elif input[0] == "FETCH":
-                return 4
-            return -1
-        elif len(input) == 3:
+        else:
             if input[0] == "SEND":
                 return 1
             elif input[0] == "UPDATE":
                 return 3
+            if input[0] == "REMOVE":
+                return 2
+            elif input[0] == "FETCH":
+                return 4
         return -1
-
     def forming_request(self, input):
         userInput = input
-        userInput = userInput.split()
+        userInput = userInput.split(" ",1)
+       
         act = self.validate_request(userInput)
         if act == -1:
             print("Invalid syntax")
@@ -60,6 +55,8 @@ class Client:
         if act == 5 or act == 6:
             return request
         if act == 1 or act == 3:
+            userInput += userInput.pop(-1).split(" ",1)
+          
             request["content"]["path"] = userInput[1]
             request["content"]["file_name"] = userInput[2]
             return request
