@@ -4,16 +4,13 @@ import socket
 import clientLib
 
 
-server_addr = "172.31.64.1"
-port = 65432
-
-
 class Client:
     def __init__(self, server_address, server_port):
         self.sAddr = server_address  # Server IP address
         self.sPort = server_port     # Server port
         self.socket = None           # the socket to connect to server
-        self.username = ""           # username to distinguish between clients
+        self.username = None           # username to distinguish between clients
+        self.password = None
         # Create another thread that waiting for request to send file to clients
         self.handle_downloading_thread = threading.Thread(target=self.create_downloading_process, daemon=True)
         self.handle_downloading_thread.start()
@@ -74,14 +71,19 @@ class Client:
         request = dict(
             type="text/json",
             encoding="utf-8",
-            content=dict(client_name=self.username, action="CONNECT")
+            content=dict(client_name=self.username,client_password=self.password, action="CONNECT")
         )
         message = clientLib.Message(sock, addr, request)
         message.write()
         message.read()
+        if message.response.get("result") == "Wrong password.":
+            message.close()
+            self.username = None
+            self.password = None
+            return self.is_connected
         self.socket = sock
         self.is_connected = True
-
+        return self.is_connected
     # Create a connection to the client that has file to download from
     def create_connection_and_download(self, client_ip, file_path):
         get_file_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -159,7 +161,10 @@ class Client:
         elif request['content']['action'] == 'LEAVE':
             message.close()
             self.socket.close()
+            self.socket = None
             self.is_connected = False
+            self.username = None
+            self.password = None
         elif request['content']['action'] == 'SEND':
             print("[SEND] sending file to server")
             if data is not None:

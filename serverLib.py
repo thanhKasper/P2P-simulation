@@ -11,15 +11,21 @@ records = db.Client_Info
 onlineList = []
 
 
-def CONNECT_request_(address, port, client_name):
+def CONNECT_request_(address, port, client_name,password):
     if records.count_documents({
-        "client_name": client_name
+        "client_name": client_name,
+        "client_password": password
     }) > 0:
         onlineList.append(client_name)
         return {"result": f"Connected successfully."}
+    if records.count_documents({
+        "client_name": client_name
+    }) > 0:
+        return {"result": f"Wrong password."}
     else:
         records.insert_one({
             "client_name": client_name,
+            "client_password": password,
             "IP": address,
             "port": port,
             "file_info": []
@@ -46,6 +52,10 @@ def SEND_request(address, port, client_name, path, filename):
 
 def ADD_request_(address, port, client_name, filename, path):
     if records.count_documents({
+        "file_info.file_name": filename
+    }) > 0:
+        return {"result": f"{filename} already exists."}
+    elif records.count_documents({
         "client_name": client_name,
         "file_info.file_name": filename
     }) > 0:
@@ -288,7 +298,7 @@ class Message:
             onlineList.remove(self.request['client_name'])
             content = {"result": "CLOSING"}
         elif self.request['action'] == 'CONNECT':
-            content = CONNECT_request_(self.address[0], self.address[1], self.request['client_name'])
+            content = CONNECT_request_(self.address[0], self.address[1], self.request['client_name'],self.request['client_password'])
         elif self.request['action'] == 'REMOVE':
             content = REMOVE_request_(self.address[0], self.address[1], self.request['client_name'],
                                       self.request['file_name'])

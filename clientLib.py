@@ -35,7 +35,6 @@ class Message:
 
     def __del__(self):
         self.socket = None
-        # print("message Done")
         return
 
     def _read(self):
@@ -67,11 +66,6 @@ class Message:
         return json.dumps(obj, ensure_ascii=False).encode(encoding)
 
     def _json_decode(self, json_bytes, encoding):
-        #tiow = io.TextIOWrapper(
-        #    io.BytesIO(json_bytes), encoding=encoding, newline=""
-        #)
-        #obj = json.load(tiow)
-        #tiow.close()
         obj = json.loads(json_bytes.decode(encoding))
         return obj
 
@@ -190,10 +184,6 @@ class Message:
             )
             self._process_response_binary_content()
             return None
-        # Close when response has been processed
-        # self.__del__()
-        # self.close()
-
     def _process_response_json_content(self):
         content = self.response
         result = content.get("result")

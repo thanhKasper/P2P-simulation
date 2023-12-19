@@ -3,10 +3,11 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from clientImplement import Client
+from tkinter import messagebox
 
 # print(socket.gethostbyname(socket.gethostname()))
 
-client = Client("10.128.108.221", 65432)
+client = Client("172.18.0.1", 65432)
 
 
 window = Tk()
@@ -16,26 +17,56 @@ window.minsize(width=600, height=500)
 topFrame = Frame(window)
 topFrame.pack()
 
-label = Label(topFrame, text="Enter your hostname")
+label = Label(topFrame, text="Hostname: ")
 label.grid(column=0, row=0)
 
 hostname_input = Entry(topFrame)
 hostname_input.grid(column=1, row=0)
 
+password_label = Label(topFrame, text="Password: ")
+password_label.grid(column=0,row=1)
 
+password_input = Entry(topFrame,show="*")
+password_input.grid(column=1, row=1)
 def handle_submit():
     content = hostname_input.get()
+    password = password_input.get()
     client.username = content
-    client.start_connection()
-    if client.is_connected:
+    client.password = password
+    if client.start_connection():
+        label.grid_forget()
+        hostname_input.grid_forget()
+        hostname_submit.grid_forget()
+        password_label.grid_forget()
+        password_input.grid_forget()
+        Disconnect_button.grid(column=0, row=0)
+        heading.config(text="Welcome "+ content)
         notebook.pack(fill="both", expand=True)
+        messagebox.showinfo(title="Login Success",message="Connected successfully")
+    else:
+        messagebox.showinfo(title="Login Fail",message="Invalid Password")
+        password_input.delete(0,END)
 
+def handle_disconnect():
+    client.handle_request("LEAVE")
+    label.grid(column=0, row=0)
+    hostname_input.grid(column=1, row=0)
+    #hostname_input.delete(0, END)
+    hostname_submit.grid(column=0, row=3,columnspan=2)
+    password_label.grid(column=0,row=1)
+    password_input.grid(column=1,row=1)
+    #password_input.delete(0,END)
+    notebook.pack_forget()
+    Disconnect_button.grid_forget()
+    heading.config(text="P2P file sharing app")
 
 hostname_submit = Button(topFrame, text="Connect", command=handle_submit)
-hostname_submit.grid(column=2, row=0)
+hostname_submit.grid(column=0, row=3,columnspan=2)
+
+Disconnect_button = Button(topFrame, text = "Disconnect", command = handle_disconnect)
 
 # Second frame for displaying the h1
-heading = Label(window, text="What do you want to do?")
+heading = Label(window, text="P2P file sharing app")
 heading.configure(font=("Ariel", 32))
 heading.pack()
 
