@@ -8,7 +8,6 @@ import sys
 import json
 
 host = socket.gethostbyname(socket.gethostname())
-#host = '10.128.108.221'
 port = 65432
 stop = False
 

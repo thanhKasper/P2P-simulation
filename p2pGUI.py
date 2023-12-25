@@ -5,9 +5,10 @@ from tkinter import filedialog
 from clientImplement import Client
 from tkinter import messagebox
 
-# print(socket.gethostbyname(socket.gethostname()))
-
-client = Client("172.18.0.1", 65432)
+#Set the IP of server here
+serverIP = "172.30.144.1"
+###########################
+client = Client(serverIP, 65432)
 
 
 window = Tk()
